@@ -6,7 +6,6 @@
 body {
 	font-family: Verdana, sans-serif;
 	margin: auto;
-	padding: 20px;
 	max-width: 65ch;
 	text-align: left;
 	background-color: #fff;
@@ -14,6 +13,12 @@ body {
 	overflow-wrap: break-word;
 	line-height: 1.5;
 	color: #444;
+	
+	min-height: 100vh;
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+}
+main {
 }
 h1,
 h2,
