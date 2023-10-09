@@ -1,0 +1,65 @@
+---
+title: "GitLab: add merge request comments via CI/CD pipeline"
+description: "Adding comments to merge requests via GitLab CICD"
+pubDate: "Oct 9 2023"
+draft: false
+---
+
+## Why?
+
+The snippet below is useful if you want to notify user via Merge Request comments.
+
+This is especially useful when rolling out git policies - naming conventions for git branches or commit messages,
+mandatory checks, etc.
+To ease the deployment of these policies you could add these checks as non-blocking and
+let users know after certain date these pipelines will fail. This will give users time
+to adjust their tools.
+
+This snippet can be further changed to include a check of the merge request description to make sure
+it includes all necessary information.
+
+This snippet:
+
+- Only runs on merge requests
+- Only runs once per merge request (via caching, so if caching is cleaned - message will be sent again)
+- Requires [Project Access Token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) - add it as CI/CD environment variable with name `PAT_TOKEN`
+- Name of the generated PAT_TOKEN will be used by GitLab as the bot user, so give it a user friendly name
+- Tested with GitLab 16.5
+
+## Code
+
+```yaml
+stages:
+  - mr-checks
+
+mr-checks:
+  stage: mr-checks
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  cache:
+    key: $CI_MERGE_REQUEST_IID
+    paths:
+      - .gitlab-check
+  script:
+    - |
+      if [ -f .gitlab-check ]; then
+        echo "Notification was already sent";
+        exit 0;
+      fi
+    - |
+      # add your checks here.
+      # It can be - checking branch names, commit messages for required info,
+      # files, anything else.
+      if [[ <CONDITION GOES HERE> ]]; then
+        echo "Check passed";
+        exit 0;
+      fi
+    - export GITLAB_TOKEN=$PAT_TOKEN
+    - |
+      curl --location --request POST \
+        "https://gitlab.com/api/v4/projects/$CI_MERGE_REQUEST_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" \
+        --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+        --header "Content-Type: application/json" \
+        --data-raw "{ \"body\": \"Comment messages goes here.\" }"
+    - touch .gitlab-check
+```
