@@ -1,0 +1,30 @@
+---
+title: Poetry for Python dependency management
+description: Why it's best to use poetry for dependency management in Python projects.
+pubDate: "Jan 18 2024"
+draft: false
+---
+
+Poetry is a Python tool for packaging and dependency management with some extra batteries included. This post only focuses on the dependency management part.
+
+In python it's quite easy to install packages - just run `pip install packageA`, but it's more complex if you have multiple packages. And this complexity only shows over a longer time span if you want to have reproducible installs.
+
+For example, if you look at `pandas==2.1.4` dependencies, it has `numpy>=1.26.0`, `python-dateutil>=2.8.2`, and a few others.
+
+If you want to install `pandas==2.1.4` and `numpy==1.20.0` you can't do it from a single `requirements.txt` file as pip will throw an error since `pandas` depends on a newer version of `numpy`. But that won't throw an error if `python-dateutil` version 3.0.0 is released in the future. `pip` has improved its dependency resolution since version `20.3` and can prevent some of the issues like conflicting versions.
+
+You can still use two separate `pip install` commands - this will work without throwing any errors. First install `pandas==2.1.4` then separately `numpy==1.20.0` and this can have unexpected behaviour in your application. This is not uncommon in Dockerfiles, where pip installs can be added in separate `RUN` commands (this is an antipattern anyway; don't do this).
+
+If you still want to use `pip` after reading this post - make sure you have all of your dependencies in a single requirements file, you can generate it using `pip freeze` or `pip-tools`. It's a good idea to separate your list of dependencies from the final list, or good luck with manually resolving version conflicts in the future.
+
+Why poetry?
+
+Poetry supports lock files out of the box, which can be generated when you update the dependencies. This lock files a list of all dependencies in your project and dependencies of these dependencies.
+
+If you have `pandas==2.1.4` in your lock file and want to run `poetry add numpy==1.20.0` it simply won't work as it will check existing packages in the lock files and their dependencies.
+
+It's common to git commit this lock file together with the application code - you can also validate that the file is valid by running poetry checks and installing the same dependencies when running the CI/CD pipeline.
+
+Having fewer steps to manage your dependencies also reduces the human error when adding extra dependencies, i.e. you won't be adding a `pip install` in Dockerfile since you have a tool for managing your dependencies as you'd have a step that takes all `poetry.lock` and installs it with a single command.
+
+Use poetry for dependency management in 2024.
