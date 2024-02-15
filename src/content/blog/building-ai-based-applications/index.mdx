@@ -1,0 +1,36 @@
+---
+title: Building AI Based Applications
+description: Some things to consider when building AI based applications
+pubDate: "Feb 15 2024"
+draft: true
+---
+
+Draft: this post is not a final version, but someone asked my thoughts on this topic, and this is the ideal way of writing posts for me. This post still has grammar mistakes, todos, and unfinished ideas.
+
+With the latest advances in AI, it has become very easy to build products that use AI. You don't need a team of machine learning engineers, and you can hack something together. It just gives you the intelligence as API. You can get very far, but Pareto Law still applies. You can get to 80% of progress with 20% of effort, and the remaining part still takes time.
+
+In this post, I'll list some items when building AI driven products.
+
+Some acronyms before we start:
+
+- LLM - Large Language Model - massive AI models that work with text
+- GPT - General Pretrained Transformer - family of LLMs coined by OpenAI
+- Token - LLMs use tokens (part of words) as input and produce output.
+- Prompt - input part of the API requests to LLMs
+- Prompt Engineering - tailoring prompt you pass to the LLMs to get the best result
+- Hallucination - LLMs can start inventing new facts based on the chat history or training data
+
+1. How GPT systems work: You give it a prompt, you can pass more context as required, previous responses, and it will generate new output. The bigger the prompt, context or history there is - more expensive this becomes.
+2. Start with the most powerful AI tool with API there is. Today (2024-02-15) - it's GPT4-Turbo, see the [Large Language Models Leaderboard](https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard) for the latest results. Yes, it will be more expensive, but by starting with the most powerful tools - you will save time by knowing what you can get. If you need to make it cheaper at scale - there are a few things you can do, more about it later.
+3. Building Chat Bots is a bit tricky, as the more messages you have in the chat - the more expensive it becomes as you need to send the history back to the API to get the result (See 1.). But it's possible and people build such tools, there are tools available you can include on your site for customer support (even they aren't fully safe - TODO add a link where user asked for $1 car), you can build a virtual AI girlfriend and chat with her. But even companies that raised millions still struggle with high quality chat bots, Pi - last time I checked it was very fast, but outputed so much text and was very repetitive it didn't feel like chatting at all.
+4. You will still need some backend to build your application, but the whole complexity will be on creating the prompt, adding external context if needed, and checking what user wants to do next, etc. But your website can be very tiny. It doesn't mean there will be less complexity, it just means it will be shifted to a different place.
+5. Your application can be jailbreaked and the system prompt will be returned to the user. Your prompt shouldn't be your secret sauce and assume it can be leaked to the user.
+6. It's harder to test changes if you change the prompt - since most of the functionality is provided by LLM - you need to call that LLM and confirm the results, which can be expensive too. However, this might be slightly easier now as OpenAI introduced reproducible responses, you technically you could send the same prompt and get the same result, so spotting bugs or prompt changes could be slightly easier, although not guaranteed.
+7. GPT4-Turbo responses can become slow if you have large history, in some cases it might take seconds (I've seen 20 seconds responses) to reply.
+8. Ideally you would save history, prompts and responses, this would help you improve your prompts in the future or give you an idea on how to optimise costs, but anonymising this data for GDPR might be challenging. For applications that use anonymous users (website visitors chatting about product) - this should be ok (if they don't provide any personal data)
+9. GPT based systems are limited in their knowledge and there is a fixed cutoff of what they know, you can use external systems and pull this info into prompt before generating responses.
+10. Depending on what you build - you might run into issues with training data set since the knowledge cutoff can be months old
+11. Another issue is safety or ethics filters - even if you ask a reasonable request, the LLM that has been trained on user feedback can return an error and say it's unethical to provide information you are trying to get
+12. Focus on feedback loops - this isn't specific to LLM based applications but to AI tools and apps in general (or even every product), but you need to find metrics that say users like what they get, spot various errors and improve the product or prompt quickly.
+13. LLM based tools are good not only on generating text, but can be used for other tasks like summarisation, categorisation, extracting facts and knowledge from text
+14.
